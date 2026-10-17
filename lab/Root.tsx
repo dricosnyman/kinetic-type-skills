@@ -3,12 +3,23 @@
  *   Library    every registered component in turn, 2.5 s each, with its menu name as a caption
  *   EdgeCases  a few components under stress: a 24-word line, Afrikaans and maths
  *              characters, a missing key word, and a 20-frame clip
+ *   Examples   every annotated example scene (remotion/examples/) in turn, with its defaults
  */
 import React from "react";
 import { AbsoluteFill, Composition, Sequence } from "remotion";
 import { KT_MENU } from "../skills/kinetic-type/assets/menu.js";
 import { KT_COMPONENTS } from "../skills/kinetic-type/remotion";
 import { C, poppins } from "../skills/kinetic-type/remotion/kit";
+import { CameraMoveTypography } from "../skills/kinetic-type/remotion/examples/camera-move-typography";
+import { ChartMadeOfType } from "../skills/kinetic-type/remotion/examples/chart-made-of-type";
+import { ChatBubbles } from "../skills/kinetic-type/remotion/examples/chat-bubbles";
+import { GenerativeFlow } from "../skills/kinetic-type/remotion/examples/generative-flow";
+import { LabelsInTheScene } from "../skills/kinetic-type/remotion/examples/labels-in-the-scene";
+import { LettersWithPersonality } from "../skills/kinetic-type/remotion/examples/letters-with-personality";
+import { MatchMovedTitle } from "../skills/kinetic-type/remotion/examples/match-moved-title";
+import { SearchBarTyping } from "../skills/kinetic-type/remotion/examples/search-bar-typing";
+import { TextAsImage } from "../skills/kinetic-type/remotion/examples/text-as-image";
+import { TextBehindSubject } from "../skills/kinetic-type/remotion/examples/text-behind-subject";
 
 const FPS = 30;
 const W = 1920;
@@ -109,9 +120,44 @@ const EdgeCases: React.FC = () => {
   );
 };
 
+// ---------- Examples ----------
+
+const EXAMPLES: { id: string; Comp: React.FC; seconds: number }[] = [
+  { id: "camera-move-typography", Comp: CameraMoveTypography, seconds: 10 },
+  { id: "text-as-image", Comp: TextAsImage, seconds: 8 },
+  { id: "match-moved-title", Comp: MatchMovedTitle, seconds: 4 },
+  { id: "text-behind-subject", Comp: TextBehindSubject, seconds: 4 },
+  { id: "labels-in-the-scene", Comp: LabelsInTheScene, seconds: 4 },
+  { id: "letters-with-personality", Comp: LettersWithPersonality, seconds: 4 },
+  { id: "chart-made-of-type", Comp: ChartMadeOfType, seconds: 4 },
+  { id: "chat-bubbles", Comp: ChatBubbles, seconds: 5 },
+  { id: "search-bar-typing", Comp: SearchBarTyping, seconds: 4 },
+  { id: "generative-flow", Comp: GenerativeFlow, seconds: 4 },
+];
+const EXAMPLES_FRAMES = EXAMPLES.reduce((a, e) => a + e.seconds * FPS, 0);
+
+const Examples: React.FC = () => {
+  let from = 0;
+  return (
+    <AbsoluteFill style={{ backgroundColor: C.paper }}>
+      {EXAMPLES.map(({ id, Comp, seconds }) => {
+        const start = from;
+        from += seconds * FPS;
+        return (
+          <Sequence key={id} name={id} from={start} durationInFrames={seconds * FPS}>
+            <Comp />
+            <Caption title={nameOf(id)} note={`examples/${id}.tsx`} />
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
 export const Root: React.FC = () => (
   <>
     <Composition id="Library" component={Library} durationInFrames={LIB_IDS.length * LIB_EACH} fps={FPS} width={W} height={H} />
     <Composition id="EdgeCases" component={EdgeCases} durationInFrames={EDGE_IDS.length * EDGE_EACH} fps={FPS} width={W} height={H} />
+    <Composition id="Examples" component={Examples} durationInFrames={EXAMPLES_FRAMES} fps={FPS} width={W} height={H} />
   </>
 );

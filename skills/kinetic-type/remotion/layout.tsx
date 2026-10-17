@@ -31,7 +31,7 @@ export const findKeyIndex = (words: readonly string[], key?: string): number =>
 const readyFonts = new Set<string>();
 
 /** False until `weight` of `family` (and the bundled fonts) can be measured. Holds the render meanwhile. */
-const useFontsReady = (family: string, weight: number): boolean => {
+export const useFontsReady = (family: string, weight: number): boolean => {
   const spec = `${weight} 100px ${family}`;
   const [ready, setReady] = useState(() => readyFonts.has(spec));
   const handle = useRef<number | null>(null);
@@ -365,3 +365,104 @@ export const letterWidths = (L: KTLayout, w: LWord): number[] =>
     (ch) =>
       measureText({ text: ch, fontFamily: L.fontFamily, fontSize: L.fontSize * w.scale, fontWeight: L.fontWeight }).width,
   );
+
+// ---------- ink sampling ----------
+// For components that rebuild the text out of cells (dots, pixels, characters):
+// the laid-out text is drawn on a hidden canvas, exactly where KTLines puts it,
+// and each cell of a grid over the block records how much of it is ink.
+
+export type InkCells = {
+  /** Top-left of the grid in frame px. */
+  readonly x0: number;
+  readonly y0: number;
+  readonly cols: number;
+  readonly rows: number;
+  readonly cellW: number;
+  readonly cellH: number;
+  /** Ink cover of each cell, 0 (empty) to 1 (full), row by row. */
+  readonly ink: Float32Array;
+  /** 1 where most of the cell's ink belongs to the key word. */
+  readonly key: Uint8Array;
+};
+
+const inkCache = new Map<string, InkCells>();
+
+/**
+ * A grid of cells over the text block (plus `pad` em of margin on every side),
+ * cellW × cellH px each, with the ink cover of every cell. Cached.
+ */
+export const inkCells = (L: KTLayout, cellW: number, cellH = cellW, pad = 0.2): InkCells => {
+  const boxes = wordBoxes(L);
+  const cacheKey = [
+    L.fontWeight,
+    L.fontSize,
+    L.fontFamily,
+    L.width,
+    L.height,
+    cellW.toFixed(2),
+    cellH.toFixed(2),
+    pad,
+    ...boxes.map((b) => `${b.word.text}|${b.word.isKey}|${b.x.toFixed(1)}|${b.baseline.toFixed(1)}`),
+  ].join("#");
+  const hit = inkCache.get(cacheKey);
+  if (hit) return hit;
+
+  const b = blockRect(L);
+  const m = pad * L.fontSize;
+  const cols = Math.max(0, Math.ceil((b.w + 2 * m) / cellW));
+  const rows = Math.max(0, Math.ceil((b.h + 2 * m) / cellH));
+  const x0 = b.left + b.w / 2 - (cols * cellW) / 2;
+  const y0 = b.top + b.h / 2 - (rows * cellH) / 2;
+  const ink = new Float32Array(cols * rows);
+  const key = new Uint8Array(cols * rows);
+  const result = { x0, y0, cols, rows, cellW, cellH, ink, key };
+  const W = Math.ceil(cols * cellW);
+  const H = Math.ceil(rows * cellH);
+  const ctx = W > 0 && H > 0 ? document.createElement("canvas").getContext("2d", { willReadFrequently: true }) : null;
+  if (!ctx) {
+    inkCache.set(cacheKey, result);
+    return result;
+  }
+  ctx.canvas.width = W;
+  ctx.canvas.height = H;
+  ctx.font = `${L.fontWeight} ${L.fontSize}px ${L.fontFamily}`;
+  ctx.textBaseline = "alphabetic";
+  // Red marks ink; green marks the key word's ink.
+  for (const wb of boxes) {
+    ctx.font = `${L.fontWeight} ${L.fontSize * wb.word.scale}px ${L.fontFamily}`;
+    ctx.fillStyle = wb.word.isKey ? "#ffff00" : "#ff0000";
+    ctx.fillText(wb.word.text, wb.x - x0, wb.baseline - y0);
+  }
+  const data = ctx.getImageData(0, 0, W, H).data;
+  // A 4 × 4 sample of each cell is plenty.
+  const sx = Math.max(1, cellW / 4);
+  const sy = Math.max(1, cellH / 4);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      let red = 0;
+      let green = 0;
+      let n = 0;
+      for (let y = r * cellH + sy / 2; y < (r + 1) * cellH; y += sy) {
+        for (let x = c * cellW + sx / 2; x < (c + 1) * cellW; x += sx) {
+          const i = (Math.floor(y) * W + Math.floor(x)) * 4;
+          red += data[i];
+          green += data[i + 1];
+          n++;
+        }
+      }
+      const i = r * cols + c;
+      ink[i] = n > 0 ? red / (n * 255) : 0;
+      key[i] = green > red / 2 && red > 0 ? 1 : 0;
+    }
+  }
+  inkCache.set(cacheKey, result);
+  return result;
+};
+
+/** The biggest square cell no smaller than `minCell` px that keeps the grid over the block (with `pad` em margin) under `maxCells` cells. */
+export const cellForBudget = (L: KTLayout, maxCells: number, minCell: number, pad = 0.2): number => {
+  const b = blockRect(L);
+  const m = pad * L.fontSize;
+  const area = Math.max(1, (b.w + 2 * m) * (b.h + 2 * m));
+  return Math.max(minCell, Math.sqrt(area / maxCells));
+};

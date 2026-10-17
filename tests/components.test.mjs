@@ -1,24 +1,22 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-// Families whose components exist so far. Task 6 removes this filter.
-const IMPLEMENTED_FAMILIES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-
 const require = createRequire(import.meta.url);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const { KT_MENU } = require(path.join(root, "skills/kinetic-type/assets/menu.js"));
-const registry = readFileSync(path.join(root, "skills/kinetic-type/remotion/index.ts"), "utf8");
+const skill = path.join(root, "skills/kinetic-type");
+const { KT_MENU } = require(path.join(skill, "assets/menu.js"));
+const registry = readFileSync(path.join(skill, "remotion/index.ts"), "utf8");
 
 // Registry keys look like:  "word-by-word-reveal": WordByWordReveal,
 const registryKeys = [...registry.matchAll(/^\s*"([a-z0-9-]+)":/gm)].map((m) => m[1]);
 
-test("every component technique in the implemented families is registered", () => {
-  const wanted = KT_MENU.filter((e) => e.build === "component" && IMPLEMENTED_FAMILIES.includes(e.family));
-  assert.ok(wanted.length > 0, "no component entries found in the implemented families");
+test("every component technique in the menu is registered", () => {
+  const wanted = KT_MENU.filter((e) => e.build === "component");
+  assert.ok(wanted.length > 0, "no component entries found in the menu");
   const missing = wanted.filter((e) => !registryKeys.includes(e.id)).map((e) => e.id);
   assert.deepEqual(missing, [], `missing from KT_COMPONENTS: ${missing.join(", ")}`);
 });
@@ -34,4 +32,11 @@ test("every registry key is a component in the menu", () => {
 
 test("registry keys are unique", () => {
   assert.equal(new Set(registryKeys).size, registryKeys.length, "duplicate registry key");
+});
+
+test("every example technique's file exists", () => {
+  const examples = KT_MENU.filter((e) => e.build === "example");
+  assert.ok(examples.length > 0, "no example entries found in the menu");
+  const missing = examples.filter((e) => !e.example || !existsSync(path.join(skill, e.example))).map((e) => e.example ?? `${e.id} (no path)`);
+  assert.deepEqual(missing, [], `example files missing: ${missing.join(", ")}`);
 });
