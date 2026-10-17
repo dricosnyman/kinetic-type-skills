@@ -122,14 +122,55 @@ export const OutlineStack: React.FC<KTProps> = (props) => {
 };
 
 // ---------------------------------------------------------------------------
-// Text tunnel: nested frames inside a dark box, the text running along the top
-// and bottom wall of each. Every frame grows exponentially, so they seem to
-// fly towards you at a steady speed, forever: fast at first, then a slow,
-// readable drift. Frames alternate paper and accent; the key word takes the
-// other of the two colours.
+// Text tunnel: nested frames inside a dark box, the text running along the
+// walls of each. Every frame grows exponentially, so they seem to fly towards
+// you at a steady speed, forever: fast at first, then a slow, readable drift,
+// and the nearest frame stays fully visible until it almost fills the box.
+// Short text runs along the top wall (repeated to fill it) and again upside
+// down along the bottom; longer text is shared out round all four walls in
+// reading order (top, right, bottom, left), so the letters stay big.
+// Frames alternate paper and accent; the key word takes the other of the two colours.
 
 const TUNNEL_FRAMES = 7;
 const TUNNEL_BG = "#1E1E24";
+const WALL_MARGIN = 0.03; // gap between a frame's edge and its wall text, in box heights
+const WALL_LINE = 1.2; // line height in em
+const MAX_WALL = 0.15; // biggest wall text, in box heights
+
+type WallPlan = { fontSize: number; walls: number[][] }; // walls: word indices on top, right, bottom, left
+
+/** Shares the words out round the four walls, at the biggest size where they fit (one line per wall). */
+const planWalls = (w100: number[], space100: number, BW: number, BH: number): WallPlan => {
+  const fill = (fs: number): number[][] | null => {
+    const depth = WALL_MARGIN * BH + WALL_LINE * fs; // how far a wall's text reaches in
+    const lengths = [0.92 * BW, BH - 2 * depth - 0.04 * BH, 0.92 * BW, BH - 2 * depth - 0.04 * BH];
+    const walls: number[][] = [[], [], [], []];
+    let wall = 0;
+    let used = 0;
+    for (let i = 0; i < w100.length; i++) {
+      const w = (w100[i] * fs) / 100;
+      const add = (walls[wall].length > 0 ? (space100 * fs) / 100 : 0) + w;
+      if (used + add > lengths[wall]) {
+        wall++;
+        if (wall > 3 || w > lengths[wall]) return null;
+        used = w;
+      } else used += add;
+      walls[wall].push(i);
+    }
+    return walls;
+  };
+  let lo = 4;
+  let hi = MAX_WALL * BH;
+  if (fill(hi)) lo = hi;
+  else {
+    for (let k = 0; k < 20; k++) {
+      const mid = (lo + hi) / 2;
+      if (fill(mid)) lo = mid;
+      else hi = mid;
+    }
+  }
+  return { fontSize: lo, walls: fill(lo) ?? [w100.map((_, i) => i), [], [], []] };
+};
 
 export const TextTunnel: React.FC<KTProps> = (props) => {
   const L = useKTLayout(props, { fontWeight: 900 });
@@ -137,15 +178,30 @@ export const TextTunnel: React.FC<KTProps> = (props) => {
   if (!L.ready || L.words.length === 0) return null;
   const BW = L.width * 0.86;
   const BH = L.height * 0.62;
-  const text = joined(L);
-  const w100 = Math.max(1, measureText({ text, fontFamily: L.fontFamily, fontSize: 100, fontWeight: 900 }).width);
-  const wallFs = Math.min(0.15 * BH, (0.92 * BW * 100) / w100);
-  // Repeat a short text so the wall is full.
-  const sep = measureText({ text: " · ", fontFamily: L.fontFamily, fontSize: 100, fontWeight: 900 }).width;
-  const copies = Math.max(1, Math.floor((0.92 * BW * 100) / wallFs / (w100 + sep)));
+  const m100 = (text: string) => measureText({ text, fontFamily: L.fontFamily, fontSize: 100, fontWeight: 900 }).width;
+  const wordW = L.words.map((w) => m100(w.text));
+  const space = m100("a b") - m100("ab");
+  const sep = m100(" · ");
+  const w100 = Math.max(1, wordW.reduce((a, b) => a + b, 0) + space * (L.words.length - 1));
+  // Short text: the whole line on the top wall (repeated) and the bottom wall, as in the original.
+  const oneWallFs = Math.min(MAX_WALL * BH, (0.92 * BW * 100) / w100);
+  const plan = planWalls(wordW, space, BW, BH);
+  const oneWall = oneWallFs >= 0.9 * plan.fontSize;
+  const fs = oneWall ? oneWallFs : plan.fontSize;
+  const copies = oneWall ? Math.max(1, Math.floor((0.92 * BW * 100) / fs / (w100 + sep))) : 1;
+  const walls = oneWall ? [L.words.map((_, i) => i), [], L.words.map((_, i) => i), []] : plan.walls;
   // Speed falls from 1.6 to 0.25 frames a second over the settle time; this is its running total.
   const s = Math.min(t, settle);
   const travel = 0.25 * t + 1.35 * (s - (s * s) / (2 * settle));
+  const lineH = WALL_LINE * fs;
+  const inset = WALL_MARGIN * BH + lineH / 2; // from a frame's edge to the middle of its wall text
+  // Where each wall's text sits (its middle) and which way it turns: the letters' tops face outwards.
+  const place = [
+    { x: BW / 2, y: inset, rotate: 0 },
+    { x: BW - inset, y: BH / 2, rotate: 90 },
+    { x: BW / 2, y: BH - inset, rotate: 180 },
+    { x: inset, y: BH / 2, rotate: 270 },
+  ];
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", opacity: prog(u, 0, 0.15) }}>
       <div style={{ position: "relative", width: BW, height: BH, overflow: "hidden", borderRadius: 0.04 * BH, background: TUNNEL_BG }}>
@@ -155,29 +211,13 @@ export const TextTunnel: React.FC<KTProps> = (props) => {
           const n = i - Math.floor(travel); // which frame this is, so its colour stays with it
           const col = n % 2 === 0 ? L.accent : C.paper;
           const other = col === C.paper ? L.accent : C.paper;
-          const wall: React.CSSProperties = {
-            position: "absolute",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            fontFamily: L.fontFamily,
-            fontWeight: 900,
-            fontSize: wallFs,
-            lineHeight: 1.2,
-            whiteSpace: "nowrap",
-            color: col,
-          };
-          const line = new Array(copies).fill(0).map((__, c) => (
-            <React.Fragment key={c}>
-              {c > 0 ? " · " : null}
-              {L.words.map((w, k) => (
-                <React.Fragment key={k}>
-                  {k > 0 ? " " : null}
-                  <span style={{ color: w.isKey ? other : col }}>{w.text}</span>
-                </React.Fragment>
-              ))}
-            </React.Fragment>
-          ));
+          const words = (idx: number[]) =>
+            idx.map((k, j) => (
+              <React.Fragment key={k}>
+                {j > 0 ? " " : null}
+                <span style={{ color: L.words[k].isKey ? other : col }}>{L.words[k].text}</span>
+              </React.Fragment>
+            ));
           return (
             <div
               key={i}
@@ -187,11 +227,36 @@ export const TextTunnel: React.FC<KTProps> = (props) => {
                 scale: `${scale}`,
                 border: `${4 / scale}px solid ${col}`,
                 boxSizing: "border-box",
-                opacity: Math.min(1, z * 2.5) * (1 - prog(z, 0.82, 1)),
+                opacity: Math.min(1, z * 2.5) * (1 - prog(z, 0.88, 1, (x) => x)),
               }}
             >
-              <div style={{ ...wall, top: 0.06 * BH }}>{line}</div>
-              <div style={{ ...wall, bottom: 0.06 * BH, rotate: "180deg" }}>{line}</div>
+              {walls.map((idx, wi) =>
+                idx.length === 0 ? null : (
+                  <div
+                    key={wi}
+                    style={{
+                      position: "absolute",
+                      left: place[wi].x,
+                      top: place[wi].y,
+                      translate: "-50% -50%",
+                      rotate: `${place[wi].rotate}deg`,
+                      fontFamily: L.fontFamily,
+                      fontWeight: 900,
+                      fontSize: fs,
+                      lineHeight: `${lineH}px`,
+                      whiteSpace: "pre",
+                      color: col,
+                    }}
+                  >
+                    {new Array(copies).fill(0).map((__, c) => (
+                      <React.Fragment key={c}>
+                        {c > 0 ? " · " : null}
+                        {words(idx)}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                ),
+              )}
             </div>
           );
         })}
