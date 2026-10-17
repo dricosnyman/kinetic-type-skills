@@ -57,7 +57,7 @@ Skim the family headings, then read the rows in the families that fit the moment
 ## Building it in Remotion
 
 1. Copy the `remotion/` folder from this skill's folder into the project as `src/kinetic-type/`.
-2. Make sure the project has `remotion`, `@remotion/google-fonts`, `@remotion/layout-utils` and `@remotion/media`, all at **exactly the project's Remotion version** (Remotion expects all its packages on one version). For example, on 4.0.536: `npm i @remotion/layout-utils@4.0.536`.
+2. Make sure the project has `remotion`, `@remotion/google-fonts`, `@remotion/layout-utils` and `@remotion/media`, all at **exactly the project's Remotion version** (Remotion expects all its packages on one version). For example, on 4.0.536: `npm i -E @remotion/layout-utils@4.0.536` (`-E` saves the exact version instead of `^4.0.536`).
 3. Look up a component by its menu id and render it inside a `<Sequence>`:
 
 ```tsx
