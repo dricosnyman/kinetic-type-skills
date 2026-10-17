@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kinetic type gallery</title>
+<meta name="description" content="Every kinetic typography technique in the kinetic-type skills, with a live preview. Point at a preview to play it." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23F2643D'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='900' font-size='20' text-anchor='middle' fill='%23fff'%3EK%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Caveat:wght@700&family=Courier+Prime:wght@400;700&family=Roboto+Flex:opsz,slnt,wdth,wght@8..144,-10..0,25..151,100..1000&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #F4EFE6; --ink: #1E1E24; --muted: #8A8578; --faint: #D9D2C3; --line: #E6DFD1;
+    --orange: #F2643D; --teal: #2A9D8F; --blue: #3D6CF2; --card: #FFFDF8; --chip: #E9E2D4;
+    --font: Poppins, "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font); }
+  a { color: inherit; }
+  input, button { font: inherit; color: inherit; }
+
+  .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1320px; margin: 0 auto; }
+
+  /* sidebar: search + families */
+  .side { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 26px 14px 26px 22px; display: flex; flex-direction: column; gap: 12px; }
+  .brand { font-weight: 800; font-size: 17px; text-decoration: none; line-height: 1.2; }
+  .brand small { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .search { position: relative; }
+  .search input { width: 100%; border: 1px solid var(--faint); background: var(--card); border-radius: 10px; padding: 8px 12px; font-size: 14px; outline: none; }
+  .search input:focus { border-color: var(--ink); }
+  .nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+  .nav a { display: grid; grid-template-columns: 22px 1fr auto; gap: 6px; align-items: baseline; padding: 6px 8px; border-radius: 8px; text-decoration: none; font-size: 13.5px; line-height: 1.3; }
+  .nav a:hover { background: var(--chip); }
+  .nav a.on { background: var(--ink); color: var(--paper); }
+  .nav a.on .n, .nav a.on .c { color: var(--faint); }
+  .nav .n { color: var(--muted); font-size: 12px; font-weight: 600; }
+  .nav .c { color: var(--muted); font-size: 12px; }
+  .nav a.none { opacity: .35; pointer-events: none; }
+
+  /* main */
+  main { padding: 26px 26px 80px 18px; min-width: 0; }
+  h1 { font-size: 26px; margin: 0; line-height: 1.2; }
+  .lede { color: var(--muted); font-size: 14.5px; margin: 4px 0 0; max-width: 720px; line-height: 1.5; }
+  .lede b { color: var(--ink); }
+  .try { margin-top: 18px; background: var(--card); border-radius: 16px; padding: 14px 16px; }
+  .try label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .try-row { display: flex; gap: 8px; }
+  .try input { flex: 1; min-width: 0; border: 1px solid var(--faint); background: #fff; border-radius: 10px; padding: 9px 12px; font-size: 15px; outline: none; }
+  .try input:focus { border-color: var(--ink); }
+  .try button { border: 2px solid var(--ink); background: transparent; border-radius: 10px; font-weight: 700; font-size: 13px; padding: 0 14px; cursor: pointer; }
+  .try button:hover { background: var(--ink); color: var(--paper); }
+  .try .hint { font-size: 12.5px; color: var(--muted); margin: 7px 0 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+  section { margin-top: 34px; scroll-margin-top: 16px; }
+  section h2 { font-size: 18px; margin: 0; display: flex; align-items: baseline; gap: 10px; }
+  section h2 .n { color: var(--orange); }
+  section h2 .c { font-size: 13px; font-weight: 400; color: var(--muted); }
+  .gloss { color: var(--muted); font-size: 14px; margin: 2px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+
+  /* cards */
+  .card { background: var(--card); border: 2px solid transparent; border-radius: 16px; padding: 10px; display: flex; flex-direction: column; outline: none; transition: border-color .2s; }
+  .card:hover, .card:focus-visible { border-color: var(--faint); }
+  .card.playing { border-color: var(--ink); }
+  .stage { position: relative; height: 124px; border-radius: 10px; background: var(--paper); overflow: hidden; }
+  .stage.dark { background: #16171D; }
+  .box { height: 100%; padding: 0 14px; font-size: 30px; }
+  .static { font-size: 13px; color: var(--muted); text-align: center; margin: 0; }
+  .card h3 { font-size: 14.5px; margin: 10px 2px 0; line-height: 1.3; }
+  .new { display: inline-block; font-size: 11px; font-weight: 700; color: var(--orange); margin-left: 4px; white-space: nowrap; }
+  .aka { font-size: 12px; color: var(--muted); margin: 1px 2px 0; }
+  .look { font-size: 13px; margin: 6px 2px 0; line-height: 1.45; }
+  .reach { font-size: 12.5px; color: var(--muted); margin: 6px 2px 0; line-height: 1.45; }
+  .reach b { color: var(--ink); font-weight: 600; }
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin: auto 0 0; padding-top: 10px; }
+  .tag { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--chip); white-space: nowrap; }
+  .tag.build { background: transparent; border: 1px solid var(--faint); color: var(--muted); }
+  .tag.calm { background: #D7ECE8; color: #1E6E64; }
+  .tag.teach { background: #FCE0D6; color: #B4401F; }
+  .tag.exit { background: #E3E2EA; color: #4A4A5A; }
+  .legend .tag { margin-right: 4px; }
+
+  .empty { color: var(--muted); font-size: 15px; margin-top: 40px; }
+  footer { margin-top: 50px; font-size: 12.5px; color: var(--muted); }
+
+  /* narrow screens: the sidebar becomes a bar along the top */
+  @media (max-width: 820px) {
+    .layout { display: block; }
+    .side { position: sticky; z-index: 5; height: auto; padding: 10px 16px; gap: 8px; background: var(--paper); border-bottom: 1px solid var(--line); }
+    .brand small { display: none; }
+    .nav { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 2px; }
+    .nav a { display: flex; gap: 5px; white-space: nowrap; background: var(--card); }
+    main { padding: 18px 16px 60px; }
+    section { scroll-margin-top: 170px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout" id="top">
+  <aside class="side">
+    <a class="brand" href="#top">Kinetic type<small id="tally"></small></a>
+    <div class="search"><input id="search" type="search" placeholder="Search: slice, calm, title…" aria-label="Search techniques by name, look or use" autocomplete="off" /></div>
+    <nav aria-label="Families"><ol class="nav" id="nav"></ol></nav>
+  </aside>
+
+  <main>
+    <h1>Kinetic type gallery</h1>
+    <p class="lede">Every kinetic typography technique in the <a href="https://github.com/dricosnyman/kinetic-type-skills">kinetic-type skills</a>, moving. <b>Point at a preview to play it.</b></p>
+
+    <div class="try">
+      <label for="line">Try your own line</label>
+      <div class="try-row">
+        <input id="line" type="text" placeholder="e.g. a² + b² = c²" autocomplete="off" />
+        <button id="reset" type="button" hidden>Show names</button>
+      </div>
+      <p class="hint">Until you type, each card shows its own name. The last word is the key word, the one accents act on. Put *stars* round a word to choose a different one.</p>
+    </div>
+
+    <div class="legend">
+      <span><span class="tag calm">house style</span>calm enough for every line</span>
+      <span><span class="tag teach">accent</span>for a key moment in a lesson</span>
+      <span><span class="tag exit">exit</span>ends with the words gone</span>
+      <span><span class="tag build">Remotion</span>how it is built in the kit</span>
+    </div>
+
+    <div id="sections"></div>
+    <p class="empty" id="empty" hidden></p>
+
+    <footer>Made with the <a href="https://github.com/dricosnyman/kinetic-type-skills">kinetic-type-skills</a> plugin for Claude Code · MIT licence</footer>
+  </main>
+</div>
+
+<script src="skills/kinetic-type/assets/menu.js"></script>
+<script src="skills/kinetic-type/assets/previews.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var BUILD = {
+    component: ["Remotion", "A ready-made component in the Remotion kit"],
+    example: ["Example scene", "An annotated Remotion scene to copy and adapt"],
+    elsewhere: ["After Effects / 3D", "Best made outside Remotion"],
+  };
+  var esc = KT.esc;
+  var families = KT_FAMILIES.slice().sort(function (a, b) { return a.num - b.num; });
+  var fams = [];
+  var cards = [];
+  var customText = "";
+
+  // ---------------------------------------------------------------- the sample line
+
+  /** A typed line as { text, key }: the key word is the *starred* word, or else the last word. */
+  function toLine(raw) {
+    var text = String(raw).trim().replace(/\s+/g, " ");
+    var star = text.match(/(^|\s)\*([^*\s]+)\*(?=\s|$)/);
+    if (star) return { text: text.replace(star[0], star[1] + star[2]), key: star[2] };
+    var words = text.split(" ");
+    return { text: text, key: words[words.length - 1] || "" };
+  }
+  function lineFor(m) { return toLine(customText || m.name); }
+
+  // ---------------------------------------------------------------- previews
+
+  function live(c) { return c.T && !c.T.static; }
+
+  /** Shows the settled frame and sizes the text to the box. */
+  function settle(c) {
+    c.box.style.opacity = "";
+    if (!live(c)) return;
+    try {
+      c.T.tick(c.box, KT.REST, c.line);
+      KT.fit(c.box);
+      c.T.tick(c.box, KT.REST, c.line);
+    } catch (e) { console.error("preview " + c.m.id, e); }
+    c.fitted = c.box.clientWidth > 0;
+  }
+
+  function draw(c) {
+    c.line = lineFor(c.m);
+    try {
+      c.box.innerHTML = live(c) ? c.T.build(c.line) : '<p class="static">' + esc(c.m.look) + "</p>";
+    } catch (e) { console.error("preview " + c.m.id, e); }
+    settle(c);
+  }
+
+  // Only previews being pointed at (or focused) move; the rest stay on their settled frame.
+  var playing = [];
+  var running = false;
+  function frame(ts) {
+    if (!playing.length) { running = false; return; }
+    playing.forEach(function (c) {
+      var p = ((ts - c.start) / 1000) % KT.LOOP;
+      if (p < 0) p = 0;
+      try { c.T.tick(c.box, p, c.line); } catch (e) { console.error("preview " + c.m.id, e); stop(c); return; }
+      // Fade out over the last 0.3 s so the loop restarts cleanly.
+      c.box.style.opacity = String(1 - Math.min(1, Math.max(0, (p - (KT.LOOP - 0.3)) / 0.3)));
+    });
+    requestAnimationFrame(frame);
+  }
+  function play(c) {
+    if (!live(c) || playing.indexOf(c) >= 0) return;
+    c.start = performance.now();
+    playing.push(c);
+    c.el.classList.add("playing");
+    if (!running) { running = true; requestAnimationFrame(frame); }
+  }
+  function stop(c) {
+    var i = playing.indexOf(c);
+    if (i < 0) return;
+    playing.splice(i, 1);
+    c.el.classList.remove("playing");
+    settle(c);
+  }
+
+  // ---------------------------------------------------------------- the page
+
+  function cardHTML(m, T) {
+    var tags = [];
+    var b = BUILD[m.build] || [m.build, ""];
+    tags.push('<span class="tag build" title="' + esc(b[1]) + '">' + esc(b[0]) + "</span>");
+    if (m.calm) tags.push('<span class="tag calm" title="Calm enough to use on every line">house style</span>');
+    if (m.teach) tags.push('<span class="tag teach" title="Suggested for a key moment in a lesson">accent</span>');
+    if (m.exit) tags.push('<span class="tag exit" title="Ends with the words gone">exit</span>');
+    return '<div class="stage' + (T && T.dark ? " dark" : "") + '"><div class="box" style="' + KT.BOX_CSS + '"></div></div>' +
+      "<h3>" + esc(m.name) + (m.isNew ? '<span class="new" title="Added after the showcase videos">✚ new</span>' : "") + "</h3>" +
+      (m.aka.length ? '<p class="aka">Also called ' + esc(m.aka.join(", ")) + "</p>" : "") +
+      '<p class="look">' + esc(m.look) + "</p>" +
+      '<p class="reach"><b>Reach for it when:</b> ' + esc(m.reachFor) + "</p>" +
+      '<div class="tags">' + tags.join("") + "</div>";
+  }
+
+  function render() {
+    var sections = document.getElementById("sections");
+    var nav = document.getElementById("nav");
+    families.forEach(function (f) {
+      var items = KT_MENU.filter(function (m) { return m.family === f.num; });
+      if (!items.length) return;
+      var sec = document.createElement("section");
+      sec.id = "family-" + f.num;
+      sec.innerHTML = '<h2><span class="n">' + f.num + "</span>" + esc(f.name) + ' <span class="c"></span></h2><p class="gloss">' + esc(f.gloss) + '</p><div class="grid"></div>';
+      var grid = sec.querySelector(".grid");
+      var li = document.createElement("li");
+      li.innerHTML = '<a href="#family-' + f.num + '"><span class="n">' + f.num + "</span><span>" + esc(f.name) + '</span><span class="c"></span></a>';
+      nav.appendChild(li);
+      var fam = { f: f, sec: sec, link: li.firstChild, cards: [] };
+      items.forEach(function (m) {
+        var el = document.createElement("article");
+        var T = KT_PREVIEWS[m.id];
+        el.className = "card";
+        el.id = "t-" + m.id;
+        el.tabIndex = 0;
+        el.innerHTML = cardHTML(m, T);
+        grid.appendChild(el);
+        var c = { m: m, T: T, el: el, box: el.querySelector(".box"), hay: [m.name].concat(m.aka, [m.look, m.reachFor]).join(" ").toLocaleLowerCase() };
+        el.addEventListener("mouseenter", function () { play(c); });
+        el.addEventListener("mouseleave", function () { if (!el.matches(":focus-visible")) stop(c); });
+        el.addEventListener("focus", function () { play(c); });
+        el.addEventListener("blur", function () { if (!el.matches(":hover")) stop(c); });
+        fam.cards.push(c);
+        cards.push(c);
+      });
+      fam.sec.querySelector("h2 .c").textContent = items.length + (items.length === 1 ? " technique" : " techniques");
+      sections.appendChild(sec);
+      fams.push(fam);
+    });
+    document.getElementById("tally").textContent = KT_MENU.length + " techniques in " + fams.length + " families";
+    cards.forEach(draw);
+  }
+
+  // ---------------------------------------------------------------- search
+
+  function filter() {
+    var q = document.getElementById("search").value.trim().toLocaleLowerCase();
+    var terms = q ? q.split(/\s+/) : [];
+    var shown = 0;
+    fams.forEach(function (fam) {
+      var n = 0;
+      fam.cards.forEach(function (c) {
+        var hit = terms.every(function (t) { return c.hay.indexOf(t) >= 0; });
+        c.el.hidden = !hit;
+        if (!hit) stop(c);
+        if (hit) n++;
+      });
+      fam.sec.hidden = n === 0;
+      fam.link.querySelector(".c").textContent = q ? n + "/" + fam.cards.length : fam.cards.length;
+      fam.link.classList.toggle("none", n === 0);
+      shown += n;
+    });
+    var empty = document.getElementById("empty");
+    empty.hidden = shown > 0;
+    empty.textContent = "No techniques match “" + q + "”.";
+    // Cards that were hidden when they were last sized get sized now.
+    cards.forEach(function (c) { if (!c.el.hidden && !c.fitted) settle(c); });
+  }
+
+  // ---------------------------------------------------------------- the family you are reading
+
+  function watchFamilies() {
+    if (!("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        fams.forEach(function (fam) {
+          var on = fam.sec === e.target;
+          fam.link.classList.toggle("on", on);
+          // On a narrow screen the families are a sideways strip: keep the current one in view.
+          var nav = fam.link.parentNode.parentNode;
+          if (on && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = fam.link.parentNode.offsetLeft - nav.offsetLeft - 16;
+        });
+      });
+    }, { rootMargin: "-15% 0px -75% 0px" });
+    fams.forEach(function (fam) { io.observe(fam.sec); });
+  }
+
+  // ---------------------------------------------------------------- wiring
+
+  render();
+  filter();
+  watchFamilies();
+
+  var search = document.getElementById("search");
+  // Each new search starts at the top of the results.
+  search.addEventListener("input", function () { filter(); window.scrollTo({ top: 0, behavior: "instant" }); });
+  search.addEventListener("keydown", function (e) { if (e.key === "Escape") { search.value = ""; filter(); } });
+
+  var input = document.getElementById("line");
+  var reset = document.getElementById("reset");
+  var typing = null;
+  function useLine() {
+    customText = input.value.trim();
+    reset.hidden = !customText;
+    cards.forEach(draw);
+  }
+  input.addEventListener("input", function () {
+    clearTimeout(typing);
+    typing = setTimeout(useLine, 250);
+  });
+  reset.addEventListener("click", function () { input.value = ""; useLine(); input.focus(); });
+
+  // Re-size every preview; hidden ones (filtered out by a search) are re-sized when they come back.
+  var refit = function () {
+    cards.forEach(function (c) {
+      if (c.el.hidden) c.fitted = false;
+      else if (playing.indexOf(c) < 0) settle(c);
+    });
+  };
+  var resizing = null;
+  window.addEventListener("resize", function () { clearTimeout(resizing); resizing = setTimeout(refit, 150); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
+})();
+</script>
+</body>
+</html>
