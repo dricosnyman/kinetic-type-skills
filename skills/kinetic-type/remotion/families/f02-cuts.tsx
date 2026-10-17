@@ -285,7 +285,7 @@ const findHole = (L: KTLayout, boxes: WordBox[]): Hole => {
 export const ZoomThroughLetter: React.FC<KTProps> = (props) => {
   const L = useKTLayout(props, { fontWeight: 900, boxWidth: 0.8 });
   const { u, out } = useExit(1.4, 0.5);
-  if (!L.ready) return null;
+  if (!L.ready || L.words.length === 0) return null;
   const hole = findHole(L, wordBoxes(L));
   // Scale at which the hole covers the whole frame.
   const far = Math.max(

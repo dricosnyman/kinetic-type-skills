@@ -5,9 +5,9 @@ description: Use when the user asks for a kinetic typography video (or a lyric, 
 
 # Kinetic type director
 
-You direct the typography of a whole video with Drico. You draft a **type script**: a technique for every line, picked for what the line means. Drico sees it as a page, previews and changes it, and approves it. Then you build exactly what he approved, in Remotion.
+You direct the typography of a whole video with the user. You draft a **type script**: a technique for every line, picked for what the line means. The user sees it as a page, previews and changes it, and approves it. Then you build exactly what they approved, in Remotion.
 
-**Creative freedom first.** Everything below is a default, not a rule. When a moment calls for something else, do it and say why in that line's one-line reason. Drico keeps the final say through the page.
+**Creative freedom first.** Everything below is a default, not a rule. When a moment calls for something else, do it and say why in that line's one-line reason. The user keeps the final say through the page.
 
 In the steps, `<skill>` means this skill's folder (Claude Code shows it as the base directory when the skill loads). The `kinetic-type` skill sits next to it, at `<skill>/../kinetic-type`.
 
@@ -17,9 +17,9 @@ Load the `kinetic-type` skill (Skill tool) and open its `references/menu.md`. Ev
 
 ## 2. Gather
 
-- **The script.** If Drico hasn't given it, ask for it. Split it into on-screen lines, one phrase or thought each. Drico's own line breaks win.
-- **Aspect ratio:** `16:9` unless he says otherwise (`9:16` for phone video, `1:1` square).
-- **Mode:** teaching unless he says otherwise. "Be creative", "go wild" or "surprise me" means free rein.
+- **The script.** If the user hasn't given it, ask for it. Split it into on-screen lines, one phrase or thought each. The user's own line breaks win.
+- **Aspect ratio:** `16:9` unless they say otherwise (`9:16` for phone video, `1:1` square).
+- **Mode:** teaching unless they say otherwise. "Be creative", "go wild" or "surprise me" means free rein.
 - **Timing.** Estimate when each line starts (`t`) and how long it stays (`dur`), in seconds, from how long it would take to say aloud, with a beat where a pause helps. It's a guess: there's no audio, and the voice-over is recorded later.
 
 Don't hold things up with questions you can answer with a default. Say which defaults you used.
@@ -35,50 +35,50 @@ Don't hold things up with questions you can answer with a default. Say which def
 
 ## 4. Make the page and open it
 
-Run these commands from the root folder of Drico's video project.
+Run these commands from the root folder of the user's video project.
 
 1. Write the data as `type-script/<slug>.json` in the project. `<slug>` is a short kebab-case name, such as `pythagoras`. The fields, with a full example, are in `references/type-script-format.md`.
 2. Make the page:
    ```bash
-   node <skill>/scripts/make-page.mjs type-script/<slug>.json type-script/<slug>.html
+   node "<skill>/scripts/make-page.mjs" type-script/<slug>.json type-script/<slug>.html
    ```
    If it refuses, it lists every problem and writes nothing. Fix the data and run it again.
 3. Serve the folder over http, as a **background** command (the browser pane shows `file://` pages as still pictures):
    ```bash
-   node <skill>/scripts/serve.mjs type-script <port>
+   node "<skill>/scripts/serve.mjs" type-script <port>
    ```
-   Pick a port for this project (3018 is the default) and **always use the same port for the same project**. The page saves Drico's choices per address, so a different port shows a fresh page. If the port says it's busy, the server is probably still running from earlier, so just open the page.
+   Pick a port for this project (3018 is the default) and **always use the same port for the same project**. The page saves the user's choices per address, so a different port shows a fresh page. If the port says it's busy, the server is probably still running from earlier, so just open the page.
 4. Open `http://127.0.0.1:<port>/<slug>.html` in the built-in browser: `preview_start` with that `url`, or `navigate` if the pane is already open.
 
-If there's no built-in browser, give Drico the path to `type-script/<slug>.html` to open in his own browser, and use the "Copy choices" fallback in step 5.
+If there's no built-in browser, give the user the path to `type-script/<slug>.html` to open in their own browser, and use the "Copy choices" fallback in step 5.
 
 ## 5. Hand over, then read the choices
 
-Tell Drico, in a few lines, what you drafted (the house pick and the accents) and how to use the page:
+Tell the user, in a few lines, what you drafted (the house pick and the accents) and how to use the page:
 - click a word to make it the key word
 - Swap changes a line's style
 - "+ note for Claude" leaves a note on a line
 - "Looks good: send to Claude" approves
 
-Ask him to say **"done"** when he's finished.
+Ask them to say **"done"** when they're finished.
 
-When he does, read the result with the browser's `javascript_tool` on the open page:
+When they do, read the result with the browser's `javascript_tool` on the open page:
 
 ```js
 JSON.stringify(window.TYPE_SCRIPT_RESULT)
 ```
 
-It holds `{ title, mode, house, lines: [{ text, key, style, note }], approved, draft }`. `style: "house"` means the chosen `house`. If you can't read it, ask Drico to press **Copy choices** and paste what it copies. The JSON object is at the end.
+It holds `{ title, mode, house, lines: [{ text, key, style, note }], approved, draft }`. `style: "house"` means the chosen `house`. If you can't read it, ask the user to press **Copy choices** and paste what it copies. The JSON object is at the end.
 
-- **Check `approved === true` before building.** If it's false, he didn't press "Looks good", or changed something after it. Ask whether to go ahead or wait.
-- **Notes** are Drico's requests for that line. Follow them in the build. If one changes the plan, say how you read it.
+- **Check `approved === true` before building.** If it's false, they didn't press "Looks good", or changed something after it. Ask whether to go ahead or wait.
+- **Notes** are the user's requests for that line. Follow them in the build. If one changes the plan, say how you read it.
 - Save what you read as `type-script/<slug>.choices.json`, so the choices survive the session.
 
-**When the page needs regenerating** (new lines, changed text or timing, or a fresh free-rein draft he asked for):
+**When the page needs regenerating** (new lines, changed text or timing, or a fresh free-rein draft they asked for):
 1. Read `TYPE_SCRIPT_RESULT` first. A page made from changed data starts fresh.
-2. Fold his earlier choices into the new data:
-   - His house pick goes into `house`, and into `houseOptions` if it isn't there (swap out one of the other two).
-   - His styles and key words go onto the matching lines (`style`, `key`). If he picked a style you didn't suggest, add it to that line's `suggest` too, with his reason if he gave one.
+2. Fold their earlier choices into the new data:
+   - Their house pick goes into `house`, and into `houseOptions` if it isn't there (swap out one of the other two).
+   - Their styles and key words go onto the matching lines (`style`, `key`). If they picked a style you didn't suggest, add it to that line's `suggest` too, with their reason if they gave one.
    - The data has no field for notes, so act on each note in the new draft, and say how in that line's reason (for example "You asked for more punch: stomp instead of fade").
 3. Regenerate the page, then reload it on the **same port**.
 
@@ -123,7 +123,7 @@ export const TypeVideo: React.FC = () => (
 ## 7. Preview, then render only when asked
 
 - Check your own work first: render a still from the middle of a few lines (`npx remotion still <id> out/check.png --frame=<n>`) and look at them.
-- Then let Drico watch it: run `npx remotion studio --no-open` in the background (without `--no-open`, it also pops open his own web browser). Open the address it prints (normally `http://localhost:3000`) in the built-in browser.
-- **Render only when he asks:** `npx remotion render <id> out/<slug>.mp4`.
+- Then let the user watch it: run `npx remotion studio --no-open` in the background (without `--no-open`, it also pops open their own web browser). Open the address it prints (normally `http://localhost:3000`) in the built-in browser.
+- **Render only when they ask:** `npx remotion render <id> out/<slug>.mp4`.
 
-If he wants changes after watching, small ones go straight into the composition. For bigger ones, go back to step 4 with his choices folded in.
+If they want changes after watching, small ones go straight into the composition. For bigger ones, go back to step 4 with their choices folded in.

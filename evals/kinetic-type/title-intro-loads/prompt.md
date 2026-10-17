@@ -1,5 +1,5 @@
 ---
-description: A short Remotion title intro should load kinetic-type and lead to more than one technique from the menu.
+description: A short Remotion title intro should load kinetic-type and lead to at least one menu technique beyond fade, slide or pop, chosen for the words' meaning.
 tags: [kinetic-type, should-load]
 max_turns: 15
 timeout_seconds: 400

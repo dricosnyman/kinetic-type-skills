@@ -1,7 +1,7 @@
 # The type-script format
 
 A **type script** is Claude's draft of a video's typography: a style for every line,
-chosen for what the line means. It goes into the page as `window.TYPE_SCRIPT`; Drico's
+chosen for what the line means. It goes into the page as `window.TYPE_SCRIPT`; the user's
 choices come back out as `window.TYPE_SCRIPT_RESULT`.
 
 All technique ids come from the menu: `skills/kinetic-type/assets/menu.js`
@@ -14,7 +14,7 @@ Write this as JSON (for example `type-script/<slug>.json` in the video's project
 | Field | What it is |
 |---|---|
 | `title` | The video's name. It heads the page and names the saved choices. |
-| `mode` | `"teaching"` (the default) or `"free"`. It only sets which styles the Swap panel offers; Drico can flip it on the page. |
+| `mode` | `"teaching"` (the default) or `"free"`. It only sets which styles the Swap panel offers; the user can flip it on the page. |
 | `aspect` | `"16:9"` (the default), `"9:16"` or `"1:1"`. Shapes the player. |
 | `houseOptions` | Exactly 3 `{ id, why }`: house-style candidates, each a **calm** technique (`calm: true` on the menu), with a one-line reason. |
 | `house` | The id of Claude's first pick. It must be one of the 3 options; it defaults to the first. |
@@ -113,18 +113,18 @@ localStorage under `kt-type-script:<title>`. Reloading the page restores it.
     // …
     { text: "But ONLY for right angles.", key: "ONLY", style: "slice", note: "Make it a bit funnier" }
   ],
-  approved: true,                   // Drico pressed "Looks good: send to Claude"
+  approved: true,                   // the user pressed "Looks good: send to Claude"
   draft: "e19687f3"                 // which draft these choices belong to (see below)
 }
 ```
 
 - `style` is `"house"` (use `house`) or a technique id.
-- `note` is Drico's "note for Claude" on that line (`""` if none).
+- `note` is the user's "note for Claude" on that line (`""` if none).
 - `approved` becomes `true` on "Looks good". Any later change to the video (house, a style, a key
   word, a note) sets it back to `false`; switching mode does not.
 - `draft` is a fingerprint of the data the page was made from. Saved choices are only restored
   into the same draft: if Claude regenerates the page with new data under the same title, the page
-  starts from the new suggestions. Fold Drico's earlier choices into the new data if they should carry over.
+  starts from the new suggestions. Fold the user's earlier choices into the new data if they should carry over.
 - Saved choices belong to the page's address (`http://127.0.0.1:<port>`): reopen it on the same port.
 
 ### Reading it back
@@ -135,5 +135,5 @@ With the browser pane's JavaScript tool, on the open page:
 JSON.stringify(window.TYPE_SCRIPT_RESULT)
 ```
 
-If that isn't possible, ask Drico to press **Copy choices** and paste what it copies: a plain
+If that isn't possible, ask the user to press **Copy choices** and paste what it copies: a plain
 list of the choices, followed by the same object as JSON.

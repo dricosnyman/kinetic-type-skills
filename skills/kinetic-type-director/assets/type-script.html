@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Caveat:wght@700&family=Courier+Prime:wght@400;700&family=Roboto+Flex:opsz,slnt,wdth,wght@8..144,-10..0,25..151,100..1000&display=swap" rel="stylesheet" />
 <style>
-  /* The type-script page: Claude's draft of a video's typography, line by line, for Drico
+  /* The type-script page: Claude's draft of a video's typography, line by line, for the user
      to preview and change. make-page.mjs fills in the menu, the previews and the data. */
   :root {
     --paper: #F4EFE6; --ink: #1E1E24; --muted: #6F6A60; --faint: #D9D2C3; --line: #E6DFD1;
@@ -123,7 +123,9 @@
   .sheet li small { color: var(--muted); }
   .sheet p { font-size: 14px; }
   .sheet textarea { width: 100%; height: 180px; font-family: "Courier New", monospace; font-size: 12px; border: 1px solid var(--faint); border-radius: 10px; padding: 8px; }
+  .sheet .actions { display: flex; flex-wrap: wrap; gap: 8px; }
   .sheet .ok { margin-top: 12px; background: var(--ink); color: var(--paper); border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 700; }
+  .sheet .ok.alt { background: transparent; color: var(--ink); border: 1px solid var(--faint); }
 
   @media (max-width: 760px) {
     .wrap { padding: 18px 16px 150px; }
@@ -692,11 +694,22 @@
   }
 
   var lastFocus = null;
-  function showSheet(title, html) {
+  // buttons (optional): [{ label, action }]. Each one closes the sheet, then runs its action.
+  // The first is the main, focused button. Without buttons the sheet has a single OK.
+  function showSheet(title, html, buttons) {
     lastFocus = document.activeElement;
-    document.getElementById("sheet").innerHTML = '<h3 id="sheetTitle">' + esc(title) + "</h3>" + html + '<button type="button" class="ok" id="sheetOk">OK</button>';
+    var sheet = document.getElementById("sheet");
+    sheet.innerHTML = '<h3 id="sheetTitle">' + esc(title) + "</h3>" + html + '<div class="actions"></div>';
+    var row = sheet.querySelector(".actions");
+    (buttons || [{ label: "OK" }]).forEach(function (b, i) {
+      var btn = el("button", i ? "ok alt" : "ok");
+      btn.type = "button";
+      if (!i) btn.id = "sheetOk";
+      btn.textContent = b.label;
+      btn.addEventListener("click", function () { closeSheet(); if (b.action) b.action(); });
+      row.appendChild(btn);
+    });
     document.getElementById("modal").hidden = false;
-    document.getElementById("sheetOk").addEventListener("click", closeSheet);
     document.getElementById("sheetOk").focus();
   }
   function closeSheet() {
@@ -731,7 +744,11 @@
     b.addEventListener("click", function () { if (S.mode !== b.dataset.mode) change(function () { S.mode = b.dataset.mode; }, true); });
   });
   document.getElementById("reset").addEventListener("click", function () {
-    change(function () { S = suggested(); openLine = -1; openFams = {}; });
+    var reset = function () { change(function () { S = suggested(); openLine = -1; openFams = {}; }); };
+    if (!changeCount()) { reset(); return; } // changeCount() counts notes too
+    showSheet("Reset to my suggestions?",
+      "<p>This clears your changes and notes, and puts back the house style, styles and key words I suggested.</p>",
+      [{ label: "Keep my changes" }, { label: "Reset", action: reset }]);
   });
   document.getElementById("playBtn").addEventListener("click", function () { setPlaying(!playing); });
   document.getElementById("copy").addEventListener("click", copyChoices);

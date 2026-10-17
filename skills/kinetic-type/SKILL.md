@@ -1,6 +1,6 @@
 ---
 name: kinetic-type
-description: Use whenever words will appear on screen in a video - a title or intro, captions or subtitles, lower-thirds, labels, formulas, key terms, quotes, a lyric video or any kinetic typography - in Remotion or any other video tool, even when the user never says "typography". Puts the full range of text-animation techniques in front of you (slice, scramble, stomp, stroke write-on, marker highlight, odometer and about 75 more) so you choose by what the words mean instead of defaulting to fade, slide or pop. Includes ready-made Remotion components.
+description: Use whenever words will appear on screen in a video - a title or intro, captions or subtitles, lower-thirds, labels, formulas, key terms, quotes, a lyric video or any kinetic typography - in Remotion or any other video tool, even when the user never says "typography". Puts the full range of text-animation techniques in front of you (slice, scramble, stomp, stroke write-on, marker highlight, odometer and about 75 more) so you choose by what the words mean instead of defaulting to fade, slide or pop. Includes ready-made Remotion components. For a whole kinetic-typography video made from a script, or when the user wants to plan and approve the type line by line, the kinetic-type-director skill runs the full process and builds on this one.
 ---
 
 # Kinetic type
@@ -37,7 +37,7 @@ The "Reach for it when" column in the menu is written for exactly this question.
 
 ## Finishing touches and checks
 
-- **Motion blur on fast moves.** Computer animation is perfectly sharp, so fast type can look jumpy. A little blur along the direction of travel makes it look filmed. Remotion has motion-blur tools (`@remotion/motion-blur`). Use it as a finishing touch on fast moves; on slow drifts it just looks out of focus.
+- **Motion blur on fast moves.** Computer animation is perfectly sharp, so fast type can look jumpy. A little blur along the direction of travel makes it look filmed. Remotion has motion-blur tools (`@remotion/motion-blur`); install it at exactly the project's Remotion version, the same way as the packages under "Building it in Remotion" (`npm i -E @remotion/motion-blur@<version>`). Use it as a finishing touch on fast moves; on slow drifts it just looks out of focus.
 - **Joined-up scripts break letter-level effects.** In Arabic, Persian and other scripts where a letter's shape depends on its neighbours, splitting a word into letters (cascade, scramble, anagram, random-order pop-on, 3D flip-in) breaks the letterforms. Animate whole words or lines instead.
 - **Check the font has your accents.** For Afrikaans and other accented Latin text, make sure the font has the letters you need (ê, ë, ô, ï...) before animating them.
 
@@ -47,7 +47,7 @@ Open `references/menu.md` (in this skill's folder) before choosing. It lists eve
 
 - its name and **id** (the key in `KT_COMPONENTS`)
 - a one-line **look** and a **reach for it when** cue
-- tags: **calm** (a good house style), **teach** (a good teaching accent), **✚ new**
+- tags: **calm** (a good house style), **teach** (a good teaching accent), **exit** (ends with the words gone, so it suits the end of a line or scene), **✚ new**
 - how it's **built**: `component` (ready-made), or `example` (an annotated scene to adapt, path given)
 
 Skim the family headings, then read the rows in the families that fit the moment.
@@ -57,7 +57,7 @@ Skim the family headings, then read the rows in the families that fit the moment
 ## Building it in Remotion
 
 1. Copy the `remotion/` folder from this skill's folder into the project as `src/kinetic-type/`.
-2. Make sure the project has `remotion`, `@remotion/google-fonts`, `@remotion/layout-utils` and `@remotion/media`, all at **exactly the project's Remotion version** (Remotion expects all its packages on one version). For example, on 4.0.536: `npm i -E @remotion/layout-utils@4.0.536` (`-E` saves the exact version instead of `^4.0.536`).
+2. Make sure the project has `remotion`, `@remotion/google-fonts` and `@remotion/layout-utils`, all at **exactly the project's Remotion version** (Remotion expects all its packages on one version). For example, on 4.0.536: `npm i -E @remotion/layout-utils@4.0.536` (`-E` saves the exact version instead of `^4.0.536`).
 3. Look up a component by its menu id and render it inside a `<Sequence>`:
 
 ```tsx
@@ -80,11 +80,11 @@ export const Intro: React.FC = () => (
 ```
 
 - **Props** (`KTProps`): `text` (required), `keyWord` (gets the accent treatment), `fontFamily` (default Poppins), `color`, `accent`, `fontSize` (default fits the frame width).
-- Each component starts at frame 0 of its `<Sequence>` and settles within about a second, so the Sequence's length sets how long the words stay.
+- Each component starts at frame 0 of its `<Sequence>` and settles within about a second, so the Sequence's length sets how long the words stay. Two kinds behave differently: **exit** techniques end with the words gone by the Sequence's last frame, and the sound-paced ones (family 15) spread the words across the whole Sequence, so its length sets their pace.
 - For `example` techniques, open the file named in the menu and adapt the scene.
 - Other video tools: the menu and the way of choosing still apply; the ready-made components are Remotion only.
 
 ## See them, or direct a whole video
 
 - **Gallery:** every technique with a live preview, at https://dricosnyman.github.io/kinetic-type-skills/
-- **Line-by-line direction:** when the user wants to review and approve the typography of each line before anything is built, use the `kinetic-type-director` skill. It drafts a type script, shows it on a page they can edit, then builds the approved version.
+- **A whole video, or line-by-line direction:** when the job is a whole kinetic-typography video made from a script, or the user wants to plan, review and approve the typography of each line before anything is built, use the `kinetic-type-director` skill. It runs the full process and builds on this skill: it drafts a type script, shows it on a page they can edit, then builds the approved version with these components.

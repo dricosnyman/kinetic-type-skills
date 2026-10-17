@@ -3,6 +3,7 @@
  *   Library    every registered component in turn, 2.5 s each, with its menu name as a caption
  *   EdgeCases  a few components under stress: a 24-word line, Afrikaans and maths
  *              characters, a missing key word, and a 20-frame clip
+ *   EmptyText  every registered component with empty text for a few frames: proves none throws
  *   Examples   every annotated example scene (remotion/examples/) in turn, with its defaults
  */
 import React from "react";
@@ -120,6 +121,23 @@ const EdgeCases: React.FC = () => {
   );
 };
 
+// ---------- Empty text ----------
+
+const EMPTY_EACH = 3;
+
+const EmptyText: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: C.paper }}>
+    {LIB_IDS.map((id, i) => {
+      const Comp = KT_COMPONENTS[id];
+      return (
+        <Sequence key={id} name={id} from={i * EMPTY_EACH} durationInFrames={EMPTY_EACH}>
+          <Comp text="" />
+        </Sequence>
+      );
+    })}
+  </AbsoluteFill>
+);
+
 // ---------- Examples ----------
 
 const EXAMPLES: { id: string; Comp: React.FC; seconds: number }[] = [
@@ -158,6 +176,7 @@ export const Root: React.FC = () => (
   <>
     <Composition id="Library" component={Library} durationInFrames={LIB_IDS.length * LIB_EACH} fps={FPS} width={W} height={H} />
     <Composition id="EdgeCases" component={EdgeCases} durationInFrames={EDGE_IDS.length * EDGE_EACH} fps={FPS} width={W} height={H} />
+    <Composition id="EmptyText" component={EmptyText} durationInFrames={LIB_IDS.length * EMPTY_EACH} fps={FPS} width={W} height={H} />
     <Composition id="Examples" component={Examples} durationInFrames={EXAMPLES_FRAMES} fps={FPS} width={W} height={H} />
   </>
 );
