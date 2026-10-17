@@ -6,8 +6,8 @@
  * keep gently moving after that: the movement is the technique.
  */
 import React, { useId } from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { easeInOut, mix, prog, useSettle } from "../kit";
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { clamp, easeInOut, mix, prog, useSettle } from "../kit";
 import { KTLayout, KTLines, LWord, blockRect, useKTLayout, wordBoxes, wordColor } from "../layout";
 import type { KTProps } from "../types";
 
@@ -100,8 +100,9 @@ export const FlagWave: React.FC<KTProps> = (props) => {
 };
 
 // ---------------------------------------------------------------------------
-// Bulge / magnify: a lens glides over the text, swelling whatever is under it,
-// and comes to rest on the key word (or the middle of the text).
+// Bulge / magnify: a lens passes over the text along the key word's line,
+// swelling whatever is under it. It lingers on the key word (or the middle
+// word), then glides off the end of the line, leaving plain text by u = 0.9.
 
 const ZOOM = 1.45;
 
@@ -109,18 +110,22 @@ export const Bulge: React.FC<KTProps> = (props) => {
   const L = useKTLayout(props, { fontWeight: 900, boxWidth: 0.8, boxHeight: 0.66 });
   const { u } = useSettle();
   if (!L.ready) return null;
+  if (u >= 0.9) return <KTLines layout={L} renderWord={plainWord(L)} />;
   const fs = L.fontSize;
   const b = blockRect(L);
   const boxes = wordBoxes(L);
   const key = boxes.find((wb) => wb.word.isKey);
   const target = key ?? boxes[Math.floor((boxes.length - 1) / 2)];
   const R = Math.max(fs * 0.75, Math.min(fs * 1.6, (target?.w ?? fs) * 0.62));
-  const endX = target?.cx ?? L.width / 2;
-  const endY = target?.cy ?? L.height / 2;
-  // The lens enters from the left of the text, along the target's line, with a little sway.
-  const p = prog(u, 0.05, 0.92, easeInOut);
-  const lx = mix(p, b.left - R * 1.2, endX);
-  const ly = endY + Math.sin(p * Math.PI) * 0.25 * fs;
+  const midX = target?.cx ?? L.width / 2;
+  const midY = target?.cy ?? L.height / 2;
+  // In from the left of the text, a pause on the target, then out past the right edge
+  // (far enough that it no longer covers any text).
+  const lx = interpolate(u, [0.05, 0.4, 0.55, 0.88], [b.left - R * 1.3, midX, midX, b.right + R * 1.3], {
+    ...clamp,
+    easing: easeInOut,
+  });
+  const ly = midY + Math.sin(prog(u, 0.05, 0.88, (x) => x) * Math.PI * 2) * 0.12 * fs;
   const lens = `circle(${R}px at ${lx}px ${ly}px)`;
   const hole = `radial-gradient(circle ${R}px at ${lx}px ${ly}px, transparent ${R - 0.5}px, black ${R + 0.5}px)`;
   return (
@@ -143,6 +148,7 @@ export const Bulge: React.FC<KTProps> = (props) => {
           borderRadius: "50%",
           border: `${Math.max(3, fs * 0.05)}px solid ${L.color}`,
           boxShadow: `0 ${fs * 0.06}px ${fs * 0.2}px rgba(0,0,0,0.15)`,
+          opacity: 1 - prog(u, 0.8, 0.9, (x) => x),
         }}
       />
     </AbsoluteFill>

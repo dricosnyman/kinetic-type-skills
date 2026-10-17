@@ -5,10 +5,11 @@
  *   - in a browser, as <script src="menu.js">, it sets window.KT_MENU and window.KT_FAMILIES
  *   - in Node, require("./menu.js") returns { KT_MENU, KT_FAMILIES }
  *
- * Each entry: { id, name, aka, family, calm, teach, look, reachFor, build, example?, isNew }
+ * Each entry: { id, name, aka, family, calm, teach, exit, look, reachFor, build, example?, isNew }
  *   id       kebab-case of the name before any " / " (e.g. "Slice / cut" -> "slice")
  *   calm     suitable as a house style
  *   teach    suggested as an accent in teaching mode (never also calm)
+ *   exit     the technique ends with the words gone (destroyed, or dived through)
  *   build    "component" (in remotion/index.ts), "example" (an annotated scene in
  *            remotion/examples/<id>.tsx) or "elsewhere" (After Effects / 3D)
  *   isNew    added after the showcase videos (marked ✚)
@@ -112,15 +113,15 @@
     { id: "knockout", name: "Knockout / stencil", aka: ["stencil", "video inside letters"], family: 2,
       look: "The letters are windows — a moving picture shows through them.",
       reachFor: "The word and an image belong together, and the title is the view into the scene." },
-    { id: "zoom-through-a-letter", name: "Zoom through a letter", aka: ["fly through the O"], family: 2,
+    { id: "zoom-through-a-letter", name: "Zoom through a letter", aka: ["fly through the O"], family: 2, exit: true,
       look: "The camera dives through the hole in a letter, like the O, into the next scene.",
       reachFor: "A title should lead straight into whatever comes next." },
 
     // ── 3 · Breaking apart and building up ──────────────────────────
-    { id: "shatter", name: "Shatter", aka: ["explode"], family: 3,
+    { id: "shatter", name: "Shatter", aka: ["explode"], family: 3, exit: true,
       look: "The word cracks like glass and the pieces fly.",
       reachFor: "An impact moment — something breaks, ends or is proved wrong." },
-    { id: "disintegrate", name: "Disintegrate / dust", aka: ["dust", "Thanos snap"], family: 3,
+    { id: "disintegrate", name: "Disintegrate / dust", aka: ["dust", "Thanos snap"], family: 3, exit: true,
       look: "Letters erode into grains that drift away.",
       reachFor: "Something fades out of existence — gone, forgotten, over." },
     { id: "particle-assemble", name: "Particle assemble", aka: ["particles in"], family: 3,
@@ -152,8 +153,8 @@
       look: "A letter assembles itself from separate pieces.",
       reachFor: "Something is being built, put together or designed — logos and idents." },
     { id: "outline-morph", name: "Outline morph", aka: ["metamorphosis", "shape morph"], family: 5,
-      look: "The letter's corner points slide to new places, so one shape becomes another: L → 7 → Z.",
-      reachFor: "You're showing one thing becoming another." },
+      look: "Each letter starts as a different letter, and its outline melts like liquid into the real one.",
+      reachFor: "You're showing one thing turning into another, or a word taking its final shape." },
 
     // ── 6 · Warp and distortion ─────────────────────────────────────
     { id: "line-boil", name: "Line boil", aka: ["boiling lines", "wiggle"], family: 6,
@@ -193,7 +194,7 @@
     { id: "water-reflection", name: "Water reflection", aka: ["reflection"], family: 8,
       look: "A flipped copy sits below the word, rippling as if on water.",
       reachFor: "A calm, peaceful or reflective moment." },
-    { id: "smoke-dissolve", name: "Smoke dissolve", aka: ["smoke text"], family: 8,
+    { id: "smoke-dissolve", name: "Smoke dissolve", aka: ["smoke text"], family: 8, exit: true,
       look: "Letters swirl, blur and drift up until they're gone.",
       reachFor: "Something mysterious vanishes, or a thought drifts away." },
 
@@ -321,7 +322,7 @@
       reachFor: "An interactive lesson page or web story, or a recording of one." },
   ];
 
-  var DEFAULTS = { aka: [], calm: false, teach: false, build: "component", isNew: false };
+  var DEFAULTS = { aka: [], calm: false, teach: false, exit: false, build: "component", isNew: false };
 
   var KT_MENU = ENTRIES.map(function (e) {
     var entry = Object.assign({}, DEFAULTS, e);

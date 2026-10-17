@@ -72,6 +72,11 @@ test("the teach set includes the teaching accents, and nothing is both calm and 
   assert.deepEqual(ids((e) => e.calm && e.teach), []);
 });
 
+test("the exit ids are exactly the four techniques that end with the words gone", () => {
+  assert.deepEqual(ids((e) => e.exit), ["disintegrate", "shatter", "smoke-dissolve", "zoom-through-a-letter"]);
+  for (const e of KT_MENU) assert.equal(typeof e.exit, "boolean", `${e.id}.exit`);
+});
+
 test("exactly one entry is new: fit-to-box", () => {
   assert.deepEqual(ids((e) => e.isNew), ["fit-to-box"]);
 });

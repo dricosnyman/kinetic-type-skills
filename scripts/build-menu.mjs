@@ -14,7 +14,7 @@ const outFile = path.join(root, "skills/kinetic-type/references/menu.md");
 const cell = (s) => String(s).replace(/\|/g, "\\|");
 
 function nameCell(e) {
-  const tags = [e.isNew && "✚ new", e.calm && "calm", e.teach && "teach"].filter(Boolean);
+  const tags = [e.isNew && "✚ new", e.calm && "calm", e.teach && "teach", e.exit && "exit"].filter(Boolean);
   let s = `**${e.name}** \`${e.id}\``;
   if (tags.length) s += ` · ${tags.join(" · ")}`;
   if (e.aka.length) s += `<br>also: ${e.aka.join(", ")}`;
@@ -33,6 +33,7 @@ export function renderMenu() {
     "",
     "- **calm**: a good house style, used for most lines.",
     "- **teach**: a suggested accent in teaching mode, for key terms, answers and warnings.",
+    "- **exit**: the technique ends with the words gone, so it suits the end of a line or scene. The words are readable first, then destroyed by the last frame; zoom through a letter ends on a full frame of the accent colour.",
     "- **✚ new**: added after the showcase videos.",
     "- **build**: `component` = ready-made in `remotion/index.ts`; `example` = an annotated scene to adapt; `elsewhere` = needs After Effects or 3D software.",
     "",

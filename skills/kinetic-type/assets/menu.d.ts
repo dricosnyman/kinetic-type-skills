@@ -7,6 +7,8 @@ export type KTMenuEntry = {
   readonly family: number;
   readonly calm: boolean;
   readonly teach: boolean;
+  /** Ends with the words gone (destroyed, or dived through). */
+  readonly exit: boolean;
   readonly look: string;
   readonly reachFor: string;
   readonly build: "component" | "example" | "elsewhere";

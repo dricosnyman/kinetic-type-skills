@@ -6,6 +6,7 @@ Every technique, grouped into families. Each name is followed by its id (the key
 
 - **calm**: a good house style, used for most lines.
 - **teach**: a suggested accent in teaching mode, for key terms, answers and warnings.
+- **exit**: the technique ends with the words gone, so it suits the end of a line or scene. The words are readable first, then destroyed by the last frame; zoom through a letter ends on a full frame of the accent colour.
 - **✚ new**: added after the showcase videos.
 - **build**: `component` = ready-made in `remotion/index.ts`; `example` = an annotated scene to adapt; `elsewhere` = needs After Effects or 3D software.
 
@@ -51,7 +52,7 @@ Text cut by a line, shown in strips, or seen through a window.
 | **Slice / cut** `slice` · teach<br>also: split text, slit text, sliced text | A line cuts the word; the two halves slide apart. | Something splits, breaks or is divided. | component |
 | **Shred / strip reveal** `shred`<br>also: Venetian-blinds reveal, strips | The word arrives in thin strips from alternating sides. | A slick, energetic entrance, or a transition between scenes. | component |
 | **Knockout / stencil** `knockout`<br>also: stencil, video inside letters | The letters are windows — a moving picture shows through them. | The word and an image belong together, and the title is the view into the scene. | component |
-| **Zoom through a letter** `zoom-through-a-letter`<br>also: fly through the O | The camera dives through the hole in a letter, like the O, into the next scene. | A title should lead straight into whatever comes next. | component |
+| **Zoom through a letter** `zoom-through-a-letter` · exit<br>also: fly through the O | The camera dives through the hole in a letter, like the O, into the next scene. | A title should lead straight into whatever comes next. | component |
 
 ## 3 · Breaking apart and building up
 
@@ -59,8 +60,8 @@ The letter itself is destroyed or built — from big shards down to tiny grains.
 
 | Name (aka) | Look | Reach for it when | Build |
 |---|---|---|---|
-| **Shatter** `shatter`<br>also: explode | The word cracks like glass and the pieces fly. | An impact moment — something breaks, ends or is proved wrong. | component |
-| **Disintegrate / dust** `disintegrate`<br>also: dust, Thanos snap | Letters erode into grains that drift away. | Something fades out of existence — gone, forgotten, over. | component |
+| **Shatter** `shatter` · exit<br>also: explode | The word cracks like glass and the pieces fly. | An impact moment — something breaks, ends or is proved wrong. | component |
+| **Disintegrate / dust** `disintegrate` · exit<br>also: dust, Thanos snap | Letters erode into grains that drift away. | Something fades out of existence — gone, forgotten, over. | component |
 | **Particle assemble** `particle-assemble`<br>also: particles in | Scattered dots fly in and settle into a word. | A key word should feel built up or discovered — a dramatic reveal. | component |
 
 ## 4 · Characters that change in place
@@ -83,7 +84,7 @@ Fluid typography in practice: the letter's own shape changes.
 | **Variable-font breathing** `variable-font-breathing`<br>also: weight pulse, breathing type | A wave of boldness ripples through the word as the font's weight slider moves. | A word needs emphasis or a pulse on the beat without moving. | component |
 | **Width stretch / slant lean** `width-stretch`<br>also: slant lean, width axis | The word goes thin, then wide, then leans forward, using the font's own sliders. | A word should feel like it's stretching, speeding up or leaning into action. | component |
 | **Construction** `construction`<br>also: letter assembly, built from parts | A letter assembles itself from separate pieces. | Something is being built, put together or designed — logos and idents. | component |
-| **Outline morph** `outline-morph`<br>also: metamorphosis, shape morph | The letter's corner points slide to new places, so one shape becomes another: L → 7 → Z. | You're showing one thing becoming another. | component |
+| **Outline morph** `outline-morph`<br>also: metamorphosis, shape morph | Each letter starts as a different letter, and its outline melts like liquid into the real one. | You're showing one thing turning into another, or a word taking its final shape. | component |
 
 ## 6 · Warp and distortion
 
@@ -116,7 +117,7 @@ Letters made of, revealed by, or destroyed into a substance — liquid, ink, wat
 | **Liquid fill** `liquid-fill`<br>also: fill up, progress fill | A wavy surface rises inside the letters, like water filling a glass. | Progress, percentages or something filling up. | component |
 | **Ink bleed** `ink-bleed`<br>also: ink spread | The edges swell and roughen like ink soaking into paper. | A calm, organic or literary mood — writing, history, old letters. | component |
 | **Water reflection** `water-reflection`<br>also: reflection | A flipped copy sits below the word, rippling as if on water. | A calm, peaceful or reflective moment. | component |
-| **Smoke dissolve** `smoke-dissolve`<br>also: smoke text | Letters swirl, blur and drift up until they're gone. | Something mysterious vanishes, or a thought drifts away. | component |
+| **Smoke dissolve** `smoke-dissolve` · exit<br>also: smoke text | Letters swirl, blur and drift up until they're gone. | Something mysterious vanishes, or a thought drifts away. | component |
 
 ## 9 · 3D surfaces
 
