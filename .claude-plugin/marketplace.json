@@ -1,0 +1,12 @@
+{
+  "name": "kinetic-type-skills",
+  "description": "Skills for making kinetic typography videos with Remotion.",
+  "owner": { "name": "Drico" },
+  "plugins": [
+    {
+      "name": "kinetic-type",
+      "source": "./",
+      "description": "Two skills for kinetic typography in Remotion: pick an animation style, then direct a whole script into a video. Includes a gallery page of the styles."
+    }
+  ]
+}
