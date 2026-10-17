@@ -29,14 +29,25 @@ const Caption: React.FC<{ title: string; note: string }> = ({ title, note }) => 
       position: "absolute",
       left: 0,
       right: 0,
-      bottom: 48,
-      textAlign: "center",
-      fontFamily: poppins,
-      color: C.muted,
+      bottom: 40,
+      display: "flex",
+      justifyContent: "center",
     }}
   >
-    <div style={{ fontSize: 34, fontWeight: 800, color: C.ink }}>{title}</div>
-    <div style={{ fontSize: 24, fontWeight: 400 }}>{note}</div>
+    {/* A paper backing keeps the caption readable over techniques that darken the frame. */}
+    <div
+      style={{
+        textAlign: "center",
+        fontFamily: poppins,
+        color: C.muted,
+        background: C.paper,
+        borderRadius: 16,
+        padding: "6px 24px",
+      }}
+    >
+      <div style={{ fontSize: 34, fontWeight: 800, color: C.ink }}>{title}</div>
+      <div style={{ fontSize: 24, fontWeight: 400 }}>{note}</div>
+    </div>
   </div>
 );
 
@@ -62,8 +73,7 @@ const Library: React.FC = () => (
 
 // ---------- Edge cases ----------
 
-// Slice is built with family 2; it joins in automatically once it is registered.
-const EDGE_IDS = ["word-by-word-reveal", "emphasis-scaling", "slice"].filter((id) => id in KT_COMPONENTS);
+const EDGE_IDS = ["word-by-word-reveal", "emphasis-scaling", "slice", "scramble", "liquid-fill", "stroke-write-on"];
 
 const EDGE_CASES: { label: string; text: string; keyWord?: string; frames: number }[] = [
   {

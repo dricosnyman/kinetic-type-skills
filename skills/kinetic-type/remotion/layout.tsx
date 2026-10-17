@@ -88,6 +88,8 @@ export type KTLayout = {
   readonly maxLineWidth: number;
   /** Width of each line in px, at the settled size. */
   readonly lineWidths: readonly number[];
+  /** Width of each word in px, at the settled size (key word scale included). */
+  readonly wordWidths: readonly number[];
   readonly width: number;
   readonly height: number;
 };
@@ -137,7 +139,7 @@ export const useKTLayout = (props: KTProps, opts: LayoutOptions = {}): KTLayout 
 
   const fitted = useMemo(() => {
     if (!ready || base.words.length === 0) {
-      return { fontSize: maxSize, lines: [base.words], lineWidths: [0] };
+      return { fontSize: maxSize, lines: [base.words], lineWidths: [0], wordWidths: base.words.map(() => 0) };
     }
     // Width of each word at 100px (width grows in proportion to font size).
     const w100 = base.words.map(
@@ -187,7 +189,7 @@ export const useKTLayout = (props: KTProps, opts: LayoutOptions = {}): KTLayout 
     }
     const size = Math.floor(lo * 10) / 10;
     const best = wrap(size);
-    return { fontSize: size, lines: best.lines, lineWidths: best.widths };
+    return { fontSize: size, lines: best.lines, lineWidths: best.widths, wordWidths: w100.map((x) => (x * size) / 100) };
   }, [ready, base, fontFamily, fontWeight, letterSpacing, lineHeight, boxW, boxH, maxSize]);
 
   return {
@@ -204,6 +206,7 @@ export const useKTLayout = (props: KTProps, opts: LayoutOptions = {}): KTLayout 
     keyIndex: base.keyIndex,
     maxLineWidth: Math.max(0, ...fitted.lineWidths),
     lineWidths: fitted.lineWidths,
+    wordWidths: fitted.wordWidths,
     width,
     height,
   };
@@ -286,3 +289,79 @@ export const blockMetrics = (layout: KTLayout): { height: number; lineTops: numb
 
 /** Colour of a word: accent for the key word, else the text colour. */
 export const wordColor = (layout: KTLayout, w: LWord): string => (w.isKey ? layout.accent : layout.color);
+
+// ---------- positions ----------
+// For components that draw the text themselves (SVG, canvas) or aim at one
+// spot in it. Positions are in px from the frame's top-left, for the block
+// as KTLines centres it.
+
+const metricsCache = new Map<string, { ascent: number; descent: number }>();
+
+/** The font's ascent and descent in px at the layout's size (what CSS uses to place the baseline). */
+export const fontMetrics = (L: KTLayout, sizeEm = 1): { ascent: number; descent: number } => {
+  const size = L.fontSize * sizeEm;
+  const spec = `${L.fontWeight} ${size}px ${L.fontFamily}`;
+  const hit = metricsCache.get(spec);
+  if (hit) return hit;
+  const ctx = document.createElement("canvas").getContext("2d");
+  let m = { ascent: size * 0.95, descent: size * 0.3 };
+  if (ctx) {
+    ctx.font = spec;
+    const t = ctx.measureText("Hgy");
+    if (t.fontBoundingBoxAscent !== undefined) m = { ascent: t.fontBoundingBoxAscent, descent: t.fontBoundingBoxDescent };
+  }
+  metricsCache.set(spec, m);
+  return m;
+};
+
+export type WordBox = {
+  readonly word: LWord;
+  readonly line: number;
+  /** Left edge and width of the word. */
+  readonly x: number;
+  readonly w: number;
+  /** Top and height of its line. */
+  readonly top: number;
+  readonly h: number;
+  /** The baseline the letters sit on. */
+  readonly baseline: number;
+  /** Middle of the word (horizontally) and of its line (vertically). */
+  readonly cx: number;
+  readonly cy: number;
+};
+
+/** The block's edges and size in px. */
+export const blockRect = (L: KTLayout) => {
+  const { height } = blockMetrics(L);
+  const left = (L.width - L.maxLineWidth) / 2;
+  const top = (L.height - height) / 2;
+  return { left, top, right: left + L.maxLineWidth, bottom: top + height, w: L.maxLineWidth, h: height };
+};
+
+/** Where every word sits, in px from the frame's top-left. */
+export const wordBoxes = (L: KTLayout): WordBox[] => {
+  const { height: blockH, lineTops, lineHeights } = blockMetrics(L);
+  const top0 = (L.height - blockH) / 2;
+  const gap = WORD_GAP * L.fontSize;
+  const { ascent, descent } = fontMetrics(L);
+  const boxes: WordBox[] = [];
+  L.lines.forEach((line, li) => {
+    let x = (L.width - L.lineWidths[li]) / 2;
+    const top = top0 + lineTops[li];
+    const h = lineHeights[li];
+    const baseline = top + (h - (ascent + descent)) / 2 + ascent;
+    line.forEach((word) => {
+      const w = L.wordWidths[word.index];
+      boxes.push({ word, line: li, x, w, top, h, baseline, cx: x + w / 2, cy: top + h / 2 });
+      x += w + gap;
+    });
+  });
+  return boxes;
+};
+
+/** Width of each letter of a word in px, measured one by one (as letters in separate spans are drawn). */
+export const letterWidths = (L: KTLayout, w: LWord): number[] =>
+  w.letters.map(
+    (ch) =>
+      measureText({ text: ch, fontFamily: L.fontFamily, fontSize: L.fontSize * w.scale, fontWeight: L.fontWeight }).width,
+  );

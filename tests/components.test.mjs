@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 // Families whose components exist so far. Task 6 removes this filter.
-const IMPLEMENTED_FAMILIES = [0, 1];
+const IMPLEMENTED_FAMILIES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 const require = createRequire(import.meta.url);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,7 +19,8 @@ const registryKeys = [...registry.matchAll(/^\s*"([a-z0-9-]+)":/gm)].map((m) => 
 test("every component technique in the implemented families is registered", () => {
   const wanted = KT_MENU.filter((e) => e.build === "component" && IMPLEMENTED_FAMILIES.includes(e.family));
   assert.ok(wanted.length > 0, "no component entries found in the implemented families");
-  for (const e of wanted) assert.ok(registryKeys.includes(e.id), `missing from KT_COMPONENTS: "${e.id}":`);
+  const missing = wanted.filter((e) => !registryKeys.includes(e.id)).map((e) => e.id);
+  assert.deepEqual(missing, [], `missing from KT_COMPONENTS: ${missing.join(", ")}`);
 });
 
 test("every registry key is a component in the menu", () => {
