@@ -1,7 +1,7 @@
 {
   "name": "kinetic-type",
   "description": "Two skills for kinetic typography in Remotion: pick an animation style, then direct a whole script into a video. Includes a gallery page of the styles.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": { "name": "Drico" },
   "homepage": "https://github.com/dricosnyman/kinetic-type-skills",
   "repository": "https://github.com/dricosnyman/kinetic-type-skills",
