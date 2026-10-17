@@ -1,0 +1,34 @@
+{
+  "title": "Pythagoras in 60 seconds",
+  "mode": "teaching",
+  "aspect": "16:9",
+  "houseOptions": [
+    { "id": "word-by-word-reveal", "why": "Calm and clear: words rise in as they're spoken." },
+    { "id": "masking-and-reveals", "why": "Clean and professional: lines slide up from behind an edge." },
+    { "id": "typewriter", "why": "Notebook feel: letters type on." }
+  ],
+  "house": "word-by-word-reveal",
+  "lines": [
+    { "t": 0, "dur": 4.5, "text": "Every right-angled triangle hides a secret.", "key": "secret", "style": "house",
+      "suggest": [{ "id": "marker-highlight", "why": "Marks 'secret' without breaking the calm." }] },
+    { "t": 4.5, "dur": 4.5, "text": "The longest side is the hypotenuse.", "key": "hypotenuse", "style": "emphasis-scaling",
+      "suggest": [
+        { "id": "emphasis-scaling", "why": "A new term: make it physically bigger." },
+        { "id": "marker-highlight", "why": "Gentler: like a student's marker." }
+      ] },
+    { "t": 9, "dur": 3.5, "text": "Square the two short sides,", "key": "", "style": "house", "suggest": [] },
+    { "t": 12.5, "dur": 3, "text": "add them together,", "key": "", "style": "house", "suggest": [] },
+    { "t": 15.5, "dur": 4.5, "text": "and you get the longest side squared.", "key": "squared", "style": "house",
+      "suggest": [{ "id": "marker-highlight", "why": "Links back to 'square' above." }] },
+    { "t": 20, "dur": 5, "text": "a² + b² = c²", "key": "", "style": "stroke-write-on",
+      "suggest": [
+        { "id": "stroke-write-on", "why": "Drawn like on a board: the payoff moment." },
+        { "id": "scramble", "why": "Decodes the 'secret' from line 1." }
+      ] },
+    { "t": 25, "dur": 4.5, "text": "But ONLY for right angles.", "key": "ONLY", "style": "stomp",
+      "suggest": [
+        { "id": "stomp", "why": "A warning should land hard." },
+        { "id": "slice", "why": "'Only' cuts off the other triangles." }
+      ] }
+  ]
+}

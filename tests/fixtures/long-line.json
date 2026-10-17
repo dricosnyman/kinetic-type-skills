@@ -1,0 +1,16 @@
+{
+  "title": "Long line check",
+  "mode": "free",
+  "aspect": "9:16",
+  "houseOptions": [
+    { "id": "simple-fade", "why": "The quietest option." },
+    { "id": "cascade", "why": "Letters drop in one after another." },
+    { "id": "tracking-in", "why": "Letters draw together from wide spacing." }
+  ],
+  "house": "cascade",
+  "lines": [
+    { "t": 0, "dur": 9, "text": "When we square the two shorter sides of any right-angled triangle and add them together, we always get the square of the hypotenuse exactly.", "key": "hypotenuse", "style": "house",
+      "suggest": [{ "id": "emphasis-scaling", "why": "The new word gets bigger." }, { "id": "slice", "why": "Checks the slice on a wrapped block." }] },
+    { "t": 9, "dur": 0.8, "text": "Gerald sê: nee! a² + b² = c²", "key": "nee", "style": "marker-highlight", "suggest": [] }
+  ]
+}
